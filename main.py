@@ -1,7 +1,7 @@
 import turtle                                       #Library turtle import
 import pygame                                       #Library pygame import
 
-#Festlegen der globalen Variablen (123456)
+#Festlegen der globalen Variablen
 window = turtle.Screen()
 window.bgcolor("black")
 window.title("Tiefensuche im Labyrinth")
