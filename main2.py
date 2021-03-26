@@ -1,31 +1,29 @@
-# This is a sample Python script.
-
+#Import der benötigten Bibliotheken/Libraries
 import pygame
 import turtle
 import numpy
 
 # Game = Labyrinth(25, 1, 1)
 
+
 def gridConstruct():
     with open("grid.txt", 'rt') as gridFile:
-        #platzhalter1 = int(gridFile.readline())
-        #platzhalter2 = int(gridFile.readline())
-        grid = []
         grid = gridFile.read().splitlines()
     return grid
 
+#Importieren der Datei, die das Spielfeld aufbaut und einlesen der "Wände"
 def waendeLesen():
-    with open("spielfeld.txt", 'rt') as file:
-        # X dimension of field
+    with open("spielfeld.txt", 'rt') as file:   #Datei wird importiert und mit 'rt' gelesen
+        # X Werte des Labyrinths
         x_dimension = int(file.readline())
-        # Y dimension of field
+        # Y Werte des Labyrinths
         y_dimension = int(file.readline())
-        # Read rows and create always a new array until \n/line breaks come in
+        # Reihen lesen und immer einen neuen Array erstellen bis zum Zeilenumbruch
         rows = file.read().splitlines()
         cols = []
         for line in rows:
-            # splitlines() creates string arrays
-            # convert array values from type string to int
+            # splitlines() erzeugt string arrays
+            # konvertiert die Array-Werte als "string" in einen integer-Wert (Zahlenwert)
             lineToInt = list(map(int, line.split()))
             cols.append(lineToInt)
         waende = cols
@@ -34,7 +32,7 @@ def waendeLesen():
     return [waende, x_dimension, y_dimension]
 
 
-def waendeAufbauen(screen, blockSize):
+def buildwalls(screen, blockSize):
     [spielFeldWaende, xD, yD] = waendeLesen()
     WEISS = (255, 255, 255)
 
@@ -50,10 +48,10 @@ def waendeAufbauen(screen, blockSize):
 
 def baueDasSpielfeldAuf(captionString):
     pygame.init()
-    screen = pygame.display.set_mode((800, 1000))
+    screen = pygame.display.set_mode((800, 800))
     pygame.display.set_caption(captionString)
     # hier kommen dann die ganzen Waende
-    waende = waendeAufbauen(screen, 30)
+    waende = buildwalls(screen, 30)
     return [screen, waende]
 
 
@@ -62,7 +60,7 @@ def eventChecker(eSpeed):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             lspielaktiv = False
-            print("Spieler hat Quit-Button angeklickt")
+            print("Spieler hat das Spiel beendet!")
     return lspielaktiv
 
 
@@ -76,6 +74,7 @@ def paint_Robot(screen, x, y):
     pygame.draw.circle(screen, (0, 0, 255), [x * 30 + 15, y * 30 + 15], 5, 0)
 
 
+
 xstart = 2
 ystart = 17
 xEnd = 1
@@ -84,13 +83,12 @@ yEnd = 1
 def _depthSearch(visited, x, y):
     visited[y][x] = True
     if x == xEnd and y == yEnd:
-        print("YEEEEEEEEEEEEEEEEEEEEEEES")
-        pygame.time.wait(5000)
+        print("Kürzesten Weg gefunden")
+        pygame.time.wait(50)    # Zeit die verstreicht, wenn der Weg gefunden wurde, bis sich das Fenster wieder schließt
         exit()
-        #screenMain.exitonclick()
-    #paint_blob(x, y, red)
+
     paint_Robot(screenMain, x, y)
-    print("Visited " + str(x) + ", " + str(y) + ".")
+    print("Visited " + str(x) + ", " + str(y) + ".") # Ausgabe welche Punkte des Labyrinths gescannt wurden
     pygame.time.wait(100)
     if y - 1 >= 1 and loadGrid[y - 1][x] != "1" and not visited[y - 1][x]:
         _depthSearch(visited, x, y - 1)
@@ -100,7 +98,6 @@ def _depthSearch(visited, x, y):
         _depthSearch(visited, x - 1, y)
     if y + 1 < 25 and loadGrid[y + 1][x] != "1" and not visited[y + 1][x]:
         _depthSearch(visited, x, y + 1)
-
 
 def depthSearch():
     visited = []
@@ -112,9 +109,10 @@ def depthSearch():
     _depthSearch(visited, xstart, ystart)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen und allgemeine Variablen definiert
 
-    # hier kommen alle meine Definitionen
+    # hier kommen unsere Definitionen
+    # zuerst die Farben die das Erscheinungsbild vom Labyrinth definieren: (R(255),G(255),B(255))
     ROT = (255, 0, 0)
     SCHWARZ = (0, 0, 0)
     CYAN = (0, 255, 255)
@@ -122,8 +120,8 @@ if __name__ == '__main__':
     loadGrid = gridConstruct()
     print(loadGrid)
 
-    # hier kommt das erste Spielfeld
-    screenMain, waende = baueDasSpielfeldAuf("Pathfinder")
+    # hier kommt das  Spielfeld
+    screenMain, waende = baueDasSpielfeldAuf("Pathfinder")  # Beschriftung des sich öffnenden Fensters
 
     #print(waende[ystart][xstart])
     #res = self.WALLS[self.y_start][self.x_start]
@@ -134,17 +132,18 @@ if __name__ == '__main__':
 
     # print(waende[ystart][xstart])
     # exit()
-    # solange die Variable True ist, soll das Spiel laufen
-    spielaktiv = True
+
+    # solange die Variable "aktiv" True ist, soll das Spiel laufen
+    aktiv = True
     speed = 30
     clock = pygame.time.Clock()
 
-    while spielaktiv:
+    while aktiv:
 
-        spielaktiv = eventChecker(speed)
+        aktiv = eventChecker(speed)
 
-        pygame.display.update()  # ohne update wartet er, loescht es dann und macht erst am Ende ein update
-        if spielaktiv:
+        pygame.display.update()  # ohne update wartet er, löscht es dann und macht erst am Ende ein update
+        if aktiv:
             clock.tick(10)
         else:
             pygame.time.wait(100)
