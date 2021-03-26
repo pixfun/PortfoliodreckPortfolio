@@ -88,6 +88,7 @@ def _depthSearch(visited, x, y):
         exit()
 
     paint_Robot(screenMain, x, y)
+    pygame.display.update()
     print("Visited " + str(x) + ", " + str(y) + ".") # Ausgabe welche Punkte des Labyrinths gescannt wurden
     pygame.time.wait(100)
     if y - 1 >= 1 and loadGrid[y - 1][x] != "1" and not visited[y - 1][x]:
@@ -122,11 +123,9 @@ if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen 
 
     # hier kommt das  Spielfeld
     screenMain, waende = baueDasSpielfeldAuf("Pathfinder")  # Beschriftung des sich öffnenden Fensters
-
     #print(waende[ystart][xstart])
     #res = self.WALLS[self.y_start][self.x_start]
     #if res == 1:
-
     setstartpoint(screenMain, xstart, ystart)
     setendpoint(screenMain, xEnd, yEnd)
 
