@@ -1,17 +1,25 @@
-import turtle                                       #Library turtle import
-import pygame                                       #Library pygame import
+import turtle                                       # Library turtle import
+import pygame                                       # Library pygame import
 
 #Festlegen der globalen Variablen
 window = turtle.Screen()
 window.bgcolor("black")
 window.title("Tiefensuche im Labyrinth")
-window.setup(1600,900)
+window.setup(1600, 900)
 start_x = 10
 start_y = 33
 end_x = 33
 end_y = 32
 
-class Wall(turtle.Turtle):
+def gridConstruct():
+    with open("grid.txt", 'rt') as gridFile:
+        #platzhalter1 = int(gridFile.readline())
+        #platzhalter2 = int(gridFile.readline())
+        grid = []
+        grid = gridFile.read().splitlines()
+    return grid
+
+class Wall(turtle.Turtle):                          # Wände erzeugen
     def __init__(self):
         turtle.Turtle.__init__(self)
         self.shape("square")
@@ -20,7 +28,7 @@ class Wall(turtle.Turtle):
         self.speed(0)
 
 
-class Green(turtle.Turtle):
+class Green(turtle.Turtle):                         # Grünen Punkt definieren (Ziel)
     def __init__(self):
         turtle.Turtle.__init__(self)
         self.shape("square")
@@ -28,7 +36,7 @@ class Green(turtle.Turtle):
         self.penup()
         self.speed(0)
 
-class Red(turtle.Turtle):
+class Red(turtle.Turtle):                           # Roter Punkt (später Roboter)
     def __init__(self):
         turtle.Turtle.__init__(self)
         self.shape("square")
@@ -36,7 +44,14 @@ class Red(turtle.Turtle):
         self.penup()
         self.speed(0)
 
-grid = [
+#def buildMap():
+
+ #   map = open("maze.txt", "r")
+
+
+  #  return [map]
+
+grid = [                                            # Spielfeld
 "1111111111111111111111111111111111",
 "1000000000000000000000000000000001",
 "1010111111111111100111111111110101",
@@ -79,7 +94,7 @@ def paint_blob(x, y, blob):
     blob.goto(screen_x, screen_y)
     blob.stamp()
 
-def paint_maze(grid):
+def paint_maze(grid):                                                       # Labyrinth zeichnen
     for y in range(len(grid)):
         for x in range(len(grid[y])):
             char = grid[y][x]
@@ -97,7 +112,7 @@ def paint_maze(grid):
             if char == "s":
                 paint_blob(x, y, red)
 
-def _tiefensuche(visited, x, y):
+def _tiefensuche(visited, x, y):                                            # Tiefensuche um Ausgang zu finden
     visited[y][x] = True
     if x == end_x and y == end_y:
         window.exitonclick()
@@ -121,10 +136,15 @@ def tiefensuche():
         visited.append(l)
     _tiefensuche(visited, start_x, start_y)
 
-if __name__ == "__main__":
+if __name__ == "__main__":                                                    # Main-Methode
+    #grid = buildMap()
+    loadGrid = []
+    loadGrid = gridConstruct()
+    print(loadGrid)
+    print(grid)
     wall = Wall()
     red = Red()
     green = Green()
     paint_maze(grid)
-    tiefensuche()
+    tiefensuche()                                                             # Aufruf Funktion Tiefensuche
     window.exitonclick()
