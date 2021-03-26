@@ -1,5 +1,6 @@
 #Import der benötigten Bibliotheken/Libraries
 import pygame
+import pygame.freetype
 #import turtle
 #import numpy
 
@@ -74,17 +75,29 @@ def paint_Robot(screen, x, y):
 def paint_Robot_black(screen, x, y):
     pygame.draw.circle(screen, (255, 255, 0), [x * 30 + 15, y * 30 + 15], 5, 0)
 
+def outputVisited(x, y):
+    output_Field = str.format("X-Wert: " + str(x) + " Y-Wert: " + str(y))
+    pygame.draw.rect(screenMain, (0, 0, 0), (580, 770, 300, 20))
+    GAME_FONT = pygame.freetype.SysFont(pygame.font.get_default_font(), 20)
+    GAME_FONT.render_to(screenMain, (580, 770), output_Field, (255, 255, 255))
+
+def shortestPath():
+    FINISH_FONT = pygame.freetype.SysFont(pygame.font.get_default_font(), 20)
+    FINISH_FONT.render_to(screenMain, (20, 770), "Ziel erreicht!", (0, 255, 0))
+
 def _depthSearch(visited, x, y):
     visited[y][x] = True
     if x == xEnd and y == yEnd:
-        print("Kürzesten Weg gefunden")
-        pygame.time.wait(50)    # Zeit die verstreicht, wenn der Weg gefunden wurde, bis sich das Fenster wieder schließt
+        shortestPath()
+        pygame.display.update()
+        pygame.time.wait(3000)  # Zeit die verstreicht, wenn der Weg gefunden wurde, bis sich das Fenster wieder schließt
         exit()
 
     paint_Robot(screenMain, x, y)
     pygame.display.update()
     paint_Robot_black(screenMain, x, y)
-    print("Visited " + str(x) + ", " + str(y) + ".") # Ausgabe welche Punkte des Labyrinths gescannt wurden
+    outputVisited(x, y)
+    #print("Visited " + str(x) + ", " + str(y) + ".") # Ausgabe welche Punkte des Labyrinths gescannt wurden
     pygame.time.wait(setSpeed)
     if y - 1 >= 1 and loadGrid[y - 1][x] != "1" and not visited[y - 1][x]:
         _depthSearch(visited, x, y - 1)
@@ -107,7 +120,7 @@ def depthSearch():
 
 if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen und allgemeine Variablen definiert
 
-    setSpeed = 400 # Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
+    setSpeed = 80 # Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
 
     xstart = 2
     ystart = 17
