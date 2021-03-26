@@ -1,10 +1,7 @@
 #Import der benötigten Bibliotheken/Libraries
 import pygame
-import turtle
-import numpy
-
-# Game = Labyrinth(25, 1, 1)
-
+#import turtle
+#import numpy
 
 def gridConstruct():
     with open("grid.txt", 'rt') as gridFile:
@@ -34,17 +31,20 @@ def waendeLesen():
 
 def buildwalls(screen, blockSize):
     [spielFeldWaende, xD, yD] = waendeLesen()
-    WEISS = (255, 255, 255)
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    cornflower = (77, 166, 255)
 
     for rIdx, rVal in enumerate(spielFeldWaende):
         for cIdx, cVal in enumerate(rVal):
             if spielFeldWaende[rIdx][cIdx] == 1:
-                pygame.draw.rect(screen, CYAN, [cIdx * blockSize, rIdx * blockSize, blockSize, blockSize], 0)
-            elif spielFeldWaende[rIdx][cIdx] == 0:
-                pygame.draw.circle(screen, WEISS, [cIdx * blockSize + 15, rIdx * blockSize + 15], 5, 0)
+                pygame.draw.rect(screen, cornflower, [cIdx * blockSize, rIdx * blockSize, blockSize, blockSize], 0)
+
+            # Möglichkeit überall auf dem Spielfeld Punkte erscheinen zu lasen
+            #elif spielFeldWaende[rIdx][cIdx] == 0:
+                #pygame.draw.circle(screen, white, [cIdx * blockSize + 15, rIdx * blockSize + 15], 5, 0)
 
     return spielFeldWaende
-
 
 def baueDasSpielfeldAuf(captionString):
     pygame.init()
@@ -54,7 +54,6 @@ def baueDasSpielfeldAuf(captionString):
     waende = buildwalls(screen, 30)
     return [screen, waende]
 
-
 def eventChecker(eSpeed):
     lspielaktiv = True
     for event in pygame.event.get():
@@ -63,22 +62,17 @@ def eventChecker(eSpeed):
             print("Spieler hat das Spiel beendet!")
     return lspielaktiv
 
-
-def setstartpoint(screen, x, y):
+def set_startpoint(screen, x, y):
     pygame.draw.circle(screen, (0, 128, 0), [x * 30 + 15, y * 30 + 15], 5, 0)
 
-def setendpoint(screen, x, y):
+def set_endpoint(screen, x, y):
     pygame.draw.circle(screen, (255, 0, 0), [x * 30 + 15, y * 30 + 15], 5, 0)
 
 def paint_Robot(screen, x, y):
     pygame.draw.circle(screen, (0, 0, 255), [x * 30 + 15, y * 30 + 15], 5, 0)
 
-
-
-xstart = 2
-ystart = 17
-xEnd = 1
-yEnd = 1
+def paint_Robot_black(screen, x, y):
+    pygame.draw.circle(screen, (255, 255, 0), [x * 30 + 15, y * 30 + 15], 5, 0)
 
 def _depthSearch(visited, x, y):
     visited[y][x] = True
@@ -89,8 +83,9 @@ def _depthSearch(visited, x, y):
 
     paint_Robot(screenMain, x, y)
     pygame.display.update()
+    paint_Robot_black(screenMain, x, y)
     print("Visited " + str(x) + ", " + str(y) + ".") # Ausgabe welche Punkte des Labyrinths gescannt wurden
-    pygame.time.wait(100)
+    pygame.time.wait(setSpeed)
     if y - 1 >= 1 and loadGrid[y - 1][x] != "1" and not visited[y - 1][x]:
         _depthSearch(visited, x, y - 1)
     if x + 1 < 25 and loadGrid[y][x + 1] != "1" and not visited[y][x + 1]:
@@ -112,11 +107,13 @@ def depthSearch():
 
 if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen und allgemeine Variablen definiert
 
-    # hier kommen unsere Definitionen
-    # zuerst die Farben die das Erscheinungsbild vom Labyrinth definieren: (R(255),G(255),B(255))
-    ROT = (255, 0, 0)
-    SCHWARZ = (0, 0, 0)
-    CYAN = (0, 255, 255)
+    setSpeed = 400 # Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
+
+    xstart = 2
+    ystart = 17
+    xEnd = 1
+    yEnd = 1
+
     loadGrid = []
     loadGrid = gridConstruct()
     print(loadGrid)
@@ -126,8 +123,8 @@ if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen 
     #print(waende[ystart][xstart])
     #res = self.WALLS[self.y_start][self.x_start]
     #if res == 1:
-    setstartpoint(screenMain, xstart, ystart)
-    setendpoint(screenMain, xEnd, yEnd)
+    set_startpoint(screenMain, xstart, ystart)
+    set_endpoint(screenMain, xEnd, yEnd)
 
     # print(waende[ystart][xstart])
     # exit()
@@ -145,7 +142,8 @@ if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen 
         if aktiv:
             clock.tick(10)
         else:
-            pygame.time.wait(100)
+            pygame.time.wait(1000)
+
         depthSearch()
         pygame.display.update()
 
