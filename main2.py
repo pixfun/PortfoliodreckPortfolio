@@ -5,13 +5,23 @@ import pygame.freetype
 #import numpy
 
 def gridConstruct():
-    with open("grid.txt", 'rt') as gridFile:
+    with open("spielfeld_neu.txt", 'rt') as gridFile:
+        placeholder1 = int(gridFile.readline())
+        placeholder2 = int(gridFile.readline())
         grid = gridFile.read().splitlines()
-    return grid
+
+        gridFinish = []
+        gridEnd = grid
+
+        for i in gridEnd:
+            j = i.replace(' ', '')
+            gridFinish.append(j)
+
+    return gridFinish
 
 #Importieren der Datei, die das Spielfeld aufbaut und einlesen der "Wände"
 def waendeLesen():
-    with open("spielfeld.txt", 'rt') as file:   #Datei wird importiert und mit 'rt' gelesen
+    with open("spielfeld_neu.txt", 'rt') as file:   #Datei wird importiert und mit 'rt' gelesen
         # X Werte des Labyrinths
         x_dimension = int(file.readline())
         # Y Werte des Labyrinths
@@ -25,6 +35,7 @@ def waendeLesen():
             lineToInt = list(map(int, line.split()))
             cols.append(lineToInt)
         waende = cols
+        print("Wände")
         print(waende)
 
     return [waende, x_dimension, y_dimension]
@@ -122,10 +133,10 @@ if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen 
 
     setSpeed = 80 # Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
 
-    xstart = 2
-    ystart = 17
-    xEnd = 1
-    yEnd = 1
+    xstart = 1
+    ystart = 0
+    xEnd = 22
+    yEnd = 24
 
     loadGrid = []
     loadGrid = gridConstruct()
