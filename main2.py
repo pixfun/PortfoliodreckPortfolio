@@ -119,7 +119,7 @@ if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen 
     print(loadGrid)
 
     # hier kommt das  Spielfeld
-    screenMain, waende = baueDasSpielfeldAuf("Pathfinder")  # Beschriftung des sich öffnenden Fensters
+    screenMain, waende = baueDasSpielfeldAuf("Pathfinder")  # Spielfeld aufbauen
     #print(waende[ystart][xstart])
     #res = self.WALLS[self.y_start][self.x_start]
     #if res == 1:
