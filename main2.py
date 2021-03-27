@@ -41,7 +41,7 @@ def buildwalls(screen):
 def gridConstruct():
     with open("maze.txt", 'rt') as gridFile:
 
-        placeholder1 = int(gridFile.readline()) #Wird benötigt um Dimension beim Einlesen zu überspringen
+        placeholder = int(gridFile.readline()) #Wird benötigt um Dimension beim Einlesen zu überspringen
         grid = gridFile.read().splitlines() #Einlesen des gesamten Spielfeldes
         gridFinish = []     #Definieren eines neuen Arrays, welches als Output der for-Schleife genutzt wird
         for i in grid:      #Leerzeichen aus Spielfeld entfernen
@@ -118,44 +118,70 @@ def shortestPath(screen): # Anzeigen der Schrift nach erfolgreichem Finden des A
     FINISH_FONT = pygame.freetype.SysFont(pygame.font.get_default_font(), 20) #Neue Schrift initialisieren
     FINISH_FONT.render_to(screen, (20, 770), "Ziel erreicht!", (0, 255, 0)) #Schrift auf Spielfeld rendern
 
-def _depthSearch(visited, x, y, finish_X, finish_Y, grid, speed, screenMain): #Rekursives Aufrufen der Funktion
+def _depthSearch(visited, x, y, finish_X, finish_Y, grid, speed, screenMain, deepArray, deepCounter): #Rekursives Aufrufen der Funktion
     outputVisited(screenMain, x, y)  # Funktionsaufruf um besuchten Ort anzuzeigen
     visited[y][x] = True    #Setzt das Feld auf bereits besucht
+    deepArray[y][x] = deepCounter
+    deepCounter += 1
     if x == finish_X and y == finish_Y: #Bedingung, falls der Algorithmus den Endpunkt findet
+        print(deepArray)
+        count = 1
+        for y1 in range(len(deepArray)):
+            for x1 in range(len(deepArray[0])):
+                value = deepArray[y1][x1]
+                if value == count:
+                    pygame.draw.circle(screenMain, (0, 0, 0), [x1 * 30 + 15, y1 * 30 + 15], 10, 0)
+                    pygame.draw.circle(screenMain, (255, 0, 0), [x1 * 30 + 15, y1 * 30 + 15], 7, 0)
+                    count += 1
+
         shortestPath(screenMain)  #Ausführen der Funktion, welche die abschließende Ausgabe zur Folge hat
         pygame.display.update() #Aktualisieren der optischen Ausgabe
-        pygame.time.wait(3000)  # Zeit die verstreicht, wenn der Weg gefunden wurde, bis sich das Fenster wieder schließt
+        pygame.time.wait(10000)  # Zeit die verstreicht, wenn der Weg gefunden wurde, bis sich das Fenster wieder schließt
         pygame.quit()  #Beendet das Programm an dieser Stelle (Ziel wurde erreicht)
+
 
     paint_Robot(screenMain, x, y) #Funktionsaufruf um Roboter zu zeichnen
     pygame.display.update() #Aktualisieren der optischen Ausgabe
     robot_Path(screenMain, x, y) #Funktionsaufruf um Roboter Laufweg zu zeichnen
     pygame.time.wait(speed) #Übergabe der in Main definierten Geschwindigkeit für Algorithmus
-    if y - 1 >= 1 and grid[y - 1][x] != "1" and not visited[y - 1][x]:      #Nach oben
-        _depthSearch(visited, x, y - 1, finish_X, finish_Y, grid, speed, screenMain)
-    if x + 1 < 25 and grid[y][x + 1] != "1" and not visited[y][x + 1]:      #Nach rechts
-        _depthSearch(visited, x + 1, y, finish_X, finish_Y, grid, speed, screenMain)
-    if x - 1 >= 1 and grid[y][x - 1] != "1" and not visited[y][x - 1]:      #Nach links
-        _depthSearch(visited, x - 1, y, finish_X, finish_Y, grid, speed, screenMain)
-    if y + 1 < 25 and grid[y + 1][x] != "1" and not visited[y + 1][x]:      #Nach unten
-        _depthSearch(visited, x, y + 1, finish_X, finish_Y, grid, speed, screenMain)
+    if y - 1 >= 1 and grid[y - 1][x] != "1" and not visited[y - 1][x]:                  #Nach oben
+        _depthSearch(visited, x, y - 1, finish_X, finish_Y, grid, speed, screenMain, deepArray, deepCounter)
+    if x + 1 < (finish_Y + 1) and grid[y][x + 1] != "1" and not visited[y][x + 1]:      #Nach rechts
+        _depthSearch(visited, x + 1, y, finish_X, finish_Y, grid, speed, screenMain, deepArray, deepCounter)
+    if x - 1 >= 1 and grid[y][x - 1] != "1" and not visited[y][x - 1]:                  #Nach links
+        _depthSearch(visited, x - 1, y, finish_X, finish_Y, grid, speed, screenMain, deepArray, deepCounter)
+    if y + 1 < (finish_Y + 1) and grid[y + 1][x] != "1" and not visited[y + 1][x]:      #Nach unten
+        _depthSearch(visited, x, y + 1, finish_X, finish_Y, grid, speed, screenMain, deepArray, deepCounter)
+
+    paint_Robot(screenMain, x, y)  # Funktionsaufruf um Roboter zu zeichnen
+    pygame.display.update()  # Aktualisieren der optischen Ausgabe
+    robot_Path(screenMain, x, y)  # Funktionsaufruf um Roboter Laufweg zu zeichnen
+    pygame.time.wait(speed)  # Übergabe der in Main definierten Geschwindigkeit für Algorithmus
+
+    deepCounter -= 1
+    deepArray[y][x] = deepCounter
 
 def depthSearch(start_X, start_Y, finish_X, finish_Y, speed, screenMain):
     loadGrid = []  # Definieren eines neuen Arrays, in welches das Labyrint für den Algorithmus übertragen wird
     loadGrid = gridConstruct()  # Übertragen des Labyrinths in zuvor definiertes Array
     visited = []    #Erzeugt eine Liste für spätere Verwendung
+    deepArray = []
+    deepCounter = 1
     for i in range(len(loadGrid)):  #Schleife geht das Array der Länge nach durch
         l = []  #Erstellen einer leeren Liste
+        d = []  #Erstellen einer leeren Liste
         for j in range(len(loadGrid[0])): #In Liste "l" wird für jedes Feld des Labyrints nun der Wert False gesetzt
             l.append(False)
+            d.append(0)
         visited.append(l) #Übergabe der Werte an die zuvor erstellte Liste visited
-    _depthSearch(visited, start_X, start_Y, finish_X, finish_Y, loadGrid, speed, screenMain) #Aufruf des rekursiven Funktionteils der Tiefensuche mit übergabe der Liste visited
+        deepArray.append(d)
+    _depthSearch(visited, start_X, start_Y, finish_X, finish_Y, loadGrid, speed, screenMain, deepArray, deepCounter) #Aufruf des rekursiven Funktionteils der Tiefensuche mit übergabe der Liste visited
 
 if __name__ == '__main__':
 
     #!!! Globale Variablen werden nur für leichtere Konfiguration verwendet, es erfolgt kein Zugriff aus Funktionen !!!
 
-    set_Speed = 100     #Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
+    set_Speed = 50     #Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
     startpoint_X = 1    #Start und Endpunkte für das Labyrinth
     startpoint_Y = 0
     endpoint_X = 22
