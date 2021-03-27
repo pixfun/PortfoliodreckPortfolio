@@ -19,8 +19,8 @@ def waendeLesen():
         rows = file.read().splitlines() #Reihen lesen und immer einen neuen Array erstellen bis zum Zeilenumbruch
         cols = []   #Definieren eines neuen Arrays, in welches später die Werte geschrieben werden
         for line in rows:
-            # splitlines() erzeugt string arrays
-            # konvertiert die Array-Werte als "string" in einen integer-Wert (Zahlenwert)
+            #splitlines() erzeugt string arrays
+            #konvertiert die Array-Werte als "string" in einen integer-Wert (Zahlenwert)
             lineToInt = list(map(int, line.split()))
             cols.append(lineToInt)
         waende = cols #Übergabe der Werte an eine neue Variable
