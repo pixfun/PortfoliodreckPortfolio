@@ -50,7 +50,7 @@ def buildwalls(screen):
 
     return labyrinthWaende
 
-def baueDasSpielfeldAuf(captionString):
+def buildMaze(captionString):
     pygame.init()
     screen = pygame.display.set_mode((800, 800))
     pygame.display.set_caption(captionString)
@@ -59,6 +59,10 @@ def baueDasSpielfeldAuf(captionString):
     return [screen, waende]
 
 def programRunning(x_start, y_start, x_end, y_end, speed):
+    screenMain, waende = buildMaze("Minotaurus")  # Spielfeld aufbauen
+    set_startpoint(screenMain, startpoint_X, startpoint_Y)  # Startpunkt zeichnen (Funktion aufrufen)
+    set_endpoint(screenMain, endpoint_X, endpoint_Y)  # Endpunkt zeichnen (Funktion aufrufen)
+
     activeProgram = True  #Variable, welche aussagt, ob das Programm läuft
     clock = pygame.time.Clock()  #Definieren einer neuen Zeitrechnungsvariable
 
@@ -71,7 +75,7 @@ def programRunning(x_start, y_start, x_end, y_end, speed):
         else:
             pygame.time.wait(1000)  #Wartezeit von einer spezifischen Anazhl an Millisekunden
 
-        depthSearch(x_start, y_start, x_end, y_end, speed)  #Ausführen der Tiefensuchefunktion
+        depthSearch(x_start, y_start, x_end, y_end, speed, screenMain)  #Ausführen der Tiefensuchefunktion
 
         pygame.display.update()  #Aktualisieren der optischen Ausgabe
 
@@ -104,21 +108,21 @@ def robot_Path(screen, x, y): #Roboter Pfad anzeigen
     pygame.draw.circle(screen, (0, 0, 0), [x * 30 + 15, y * 30 + 15], 10, 0)
     pygame.draw.circle(screen, (255, 255, 0), [x * 30 + 15, y * 30 + 15], 3, 0)
 
-def outputVisited(x, y):    #Anzeige für das besuchte Feld
+def outputVisited(screen, x, y):    #Anzeige für das besuchte Feld
     output_Field = str.format("Besuche X-Wert: " + str(x) + " und Y-Wert: " + str(y)) #Festlegen eines Strings mit übergebenen x- und y-Werten
-    pygame.draw.rect(screenMain, (0, 0, 0), (450, 770, 400, 20)) #Übermalen des zu beschreibenden Feldes mit schwarzem Rechteck
+    pygame.draw.rect(screen, (0, 0, 0), (450, 770, 400, 20)) #Übermalen des zu beschreibenden Feldes mit schwarzem Rechteck
     GAME_FONT = pygame.freetype.SysFont(pygame.font.get_default_font(), 20) #Neue Schrift initialisieren
-    GAME_FONT.render_to(screenMain, (450, 770), output_Field, (255, 255, 255)) #Schrift auf Spielfeld rendern
+    GAME_FONT.render_to(screen, (450, 770), output_Field, (255, 255, 255)) #Schrift auf Spielfeld rendern
 
-def shortestPath(): # Anzeigen der Schrift nach erfolgreichem Finden des Ausgangs
+def shortestPath(screen): # Anzeigen der Schrift nach erfolgreichem Finden des Ausgangs
     FINISH_FONT = pygame.freetype.SysFont(pygame.font.get_default_font(), 20) #Neue Schrift initialisieren
-    FINISH_FONT.render_to(screenMain, (20, 770), "Ziel erreicht!", (0, 255, 0)) #Schrift auf Spielfeld rendern
+    FINISH_FONT.render_to(screen, (20, 770), "Ziel erreicht!", (0, 255, 0)) #Schrift auf Spielfeld rendern
 
-def _depthSearch(visited, x, y, finish_X, finish_Y, grid, speed): #Rekursives Aufrufen der Funktion
-    outputVisited(x, y)  # Funktionsaufruf um besuchten Ort anzuzeigen
+def _depthSearch(visited, x, y, finish_X, finish_Y, grid, speed, screenMain): #Rekursives Aufrufen der Funktion
+    outputVisited(screenMain, x, y)  # Funktionsaufruf um besuchten Ort anzuzeigen
     visited[y][x] = True    #Setzt das Feld auf bereits besucht
     if x == finish_X and y == finish_Y: #Bedingung, falls der Algorithmus den Endpunkt findet
-        shortestPath()  #Ausführen der Funktion, welche die abschließende Ausgabe zur Folge hat
+        shortestPath(screenMain)  #Ausführen der Funktion, welche die abschließende Ausgabe zur Folge hat
         pygame.display.update() #Aktualisieren der optischen Ausgabe
         pygame.time.wait(3000)  # Zeit die verstreicht, wenn der Weg gefunden wurde, bis sich das Fenster wieder schließt
         pygame.quit()  #Beendet das Programm an dieser Stelle (Ziel wurde erreicht)
@@ -128,15 +132,15 @@ def _depthSearch(visited, x, y, finish_X, finish_Y, grid, speed): #Rekursives Au
     robot_Path(screenMain, x, y) #Funktionsaufruf um Roboter Laufweg zu zeichnen
     pygame.time.wait(speed) #Übergabe der in Main definierten Geschwindigkeit für Algorithmus
     if y - 1 >= 1 and grid[y - 1][x] != "1" and not visited[y - 1][x]:      #Nach oben
-        _depthSearch(visited, x, y - 1, finish_X, finish_Y, grid,speed)
+        _depthSearch(visited, x, y - 1, finish_X, finish_Y, grid, speed, screenMain)
     if x + 1 < 25 and grid[y][x + 1] != "1" and not visited[y][x + 1]:      #Nach rechts
-        _depthSearch(visited, x + 1, y, finish_X, finish_Y, grid, speed)
+        _depthSearch(visited, x + 1, y, finish_X, finish_Y, grid, speed, screenMain)
     if x - 1 >= 1 and grid[y][x - 1] != "1" and not visited[y][x - 1]:      #Nach links
-        _depthSearch(visited, x - 1, y, finish_X, finish_Y, grid, speed)
+        _depthSearch(visited, x - 1, y, finish_X, finish_Y, grid, speed, screenMain)
     if y + 1 < 25 and grid[y + 1][x] != "1" and not visited[y + 1][x]:      #Nach unten
-        _depthSearch(visited, x, y + 1, finish_X, finish_Y, grid, speed)
+        _depthSearch(visited, x, y + 1, finish_X, finish_Y, grid, speed, screenMain)
 
-def depthSearch(start_X, start_Y, finish_X, finish_Y, speed):
+def depthSearch(start_X, start_Y, finish_X, finish_Y, speed, screenMain):
     loadGrid = []  # Definieren eines neuen Arrays, in welches das Labyrint für den Algorithmus übertragen wird
     loadGrid = gridConstruct()  # Übertragen des Labyrinths in zuvor definiertes Array
     visited = []    #Erzeugt eine Liste für spätere Verwendung
@@ -145,11 +149,11 @@ def depthSearch(start_X, start_Y, finish_X, finish_Y, speed):
         for j in range(len(loadGrid[0])): #In Liste "l" wird für jedes Feld des Labyrints nun der Wert False gesetzt
             l.append(False)
         visited.append(l) #Übergabe der Werte an die zuvor erstellte Liste visited
-    _depthSearch(visited, start_X, start_Y, finish_X, finish_Y, loadGrid, speed) #Aufruf des rekursiven Funktionteils der Tiefensuche mit übergabe der Liste visited
+    _depthSearch(visited, start_X, start_Y, finish_X, finish_Y, loadGrid, speed, screenMain) #Aufruf des rekursiven Funktionteils der Tiefensuche mit übergabe der Liste visited
 
-if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen und allgemeine Variablen definiert
+if __name__ == '__main__':
 
-    #!!! Globale Variablen werden nur für leichtere Konfiguration verwendet, es erfolgt kein Zugriff auf/aus  Funktionen !!!
+    #!!! Globale Variablen werden nur für leichtere Konfiguration verwendet, es erfolgt kein Zugriff aus Funktionen !!!
 
     set_Speed = 100     #Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
     startpoint_X = 1    #Start und Endpunkte für das Labyrinth
@@ -157,8 +161,6 @@ if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen 
     endpoint_X = 22
     endpoint_Y = 24
 
-    screenMain, waende = baueDasSpielfeldAuf("Minotaurus")  #Spielfeld aufbauen
-    set_startpoint(screenMain, startpoint_X, startpoint_Y)  #Startpunkt zeichnen (Funktion aufrufen)
-    set_endpoint(screenMain, endpoint_X, endpoint_Y)        #Endpunkt zeichnen (Funktion aufrufen)
     programRunning(startpoint_X, startpoint_Y, endpoint_X, endpoint_Y, set_Speed) #Eigentliches Programm starten
+
     pygame.quit() #Programm beenden
