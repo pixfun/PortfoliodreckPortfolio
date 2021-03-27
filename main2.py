@@ -1,9 +1,11 @@
 #Import der benötigten Bibliotheken/Libraries
 import pygame
 import pygame.freetype
+from tkinter import *
+from tkinter import messagebox
 
 def gridConstruct():
-    with open("spielfeld_neu.txt", 'rt') as gridFile:
+    with open("maze.txt", 'rt') as gridFile:
 
         placeholder1 = int(gridFile.readline()) #Wird benötigt um Dimension beim Einlesen zu überspringen
         grid = gridFile.read().splitlines() #Einlesen des gesamten Spielfeldes
@@ -17,15 +19,16 @@ def gridConstruct():
 def dimensionChecker(dim):
 
     if dim != 30:   #Abfrage, ob der übergebene Wert (Dimension des Labyrints) dem Wert 30 entspricht
-        print("Bitte Dimension 30 eingeben!")
-        pygame.time.wait(3000)
+        #print("Bitte Dimension 30 in Textdokument eingeben!")
+        Tk().wm_withdraw()  #Fenster verstecken, welches sich beim Aufruf der Funktion öffnet
+        messagebox.showerror('Dimension Error!', 'Bitte Dimension 30 in Textdokument eingeben!') #Pop-Up Errorfenster
         exit()  #Programm beenden
 
 #Importieren der Datei, die das Spielfeld aufbaut und einlesen der Wände
 def waendeLesen():
-    with open("spielfeld_neu.txt", 'rt') as file:   #Datei wird importiert und mit 'rt' gelesen
+    with open("maze.txt", 'rt') as file:   #Datei wird importiert und mit 'rt' gelesen
         dimension = int(file.readline()) #Hier wird die Dimension des Spielfeldes aus Zeile 1 eingelesen
-        rows = file.read().splitlines() # Reihen lesen und immer einen neuen Array erstellen bis zum Zeilenumbruch
+        rows = file.read().splitlines() #Reihen lesen und immer einen neuen Array erstellen bis zum Zeilenumbruch
         cols = []   #Definieren eines neuen Arrays, in welches später die Werte geschrieben werden
         for line in rows:
             # splitlines() erzeugt string arrays
@@ -95,6 +98,7 @@ def shortestPath(): # Anzeigen der Schrift nach erfolgreichem Finden des Ausgang
     FINISH_FONT.render_to(screenMain, (20, 770), "Ziel erreicht!", (0, 255, 0)) #Schrift auf Spielfeld rendern
 
 def _depthSearch(visited, x, y): #Rekursives Aufrufen der Funktion
+    outputVisited(x, y)  # Funktionsaufruf um besuchten Ort anzuzeigen
     visited[y][x] = True    #Setzt das Feld auf bereits besucht
     if x == xEnd and y == yEnd: #Bedingung, falls der Algorithmus den Endpunkt findet
         shortestPath()  #Ausführen der Funktion, welche die abschließende Ausgabe zur Folge hat
@@ -105,7 +109,6 @@ def _depthSearch(visited, x, y): #Rekursives Aufrufen der Funktion
     paint_Robot(screenMain, x, y) #Funktionsaufruf um Roboter zu zeichnen
     pygame.display.update() #Aktualisieren der optischen Ausgabe
     robot_Path(screenMain, x, y) #Funktionsaufruf um Roboter Laufweg zu zeichnen
-    outputVisited(x, y) #Funktionsaufruf um besuchten Ort anzuzeigen
     pygame.time.wait(setSpeed) #Übergabe der in Main definierten Geschwindigkeit für Algorithmus
     if y - 1 >= 1 and loadGrid[y - 1][x] != "1" and not visited[y - 1][x]:      #Nach oben
         _depthSearch(visited, x, y - 1)
@@ -127,7 +130,7 @@ def depthSearch():
 
 if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen und allgemeine Variablen definiert
 
-    setSpeed = 100 # Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
+    setSpeed = 100 #Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
 
     #Start und Endpunkte für das Labyrinth
     xstart = 1
