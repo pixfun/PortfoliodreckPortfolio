@@ -4,18 +4,6 @@ import pygame.freetype
 from tkinter import *
 from tkinter import messagebox
 
-def gridConstruct():
-    with open("maze.txt", 'rt') as gridFile:
-
-        placeholder1 = int(gridFile.readline()) #Wird benötigt um Dimension beim Einlesen zu überspringen
-        grid = gridFile.read().splitlines() #Einlesen des gesamten Spielfeldes
-        gridFinish = []     #Definieren eines neuen Arrays, welches als Output der for-Schleife genutzt wird
-        for i in grid:      #Leerzeichen aus Spielfeld entfernen
-            j = i.replace(' ', '')
-            gridFinish.append(j)
-
-    return gridFinish
-
 def dimensionChecker(dim):
 
     if dim != 30:   #Abfrage, ob der übergebene Wert (Dimension des Labyrints) dem Wert 30 entspricht
@@ -49,6 +37,18 @@ def buildwalls(screen):
                 pygame.draw.rect(screen, cornflower, [cIdx * dim, rIdx * dim, dim, dim], 0)
 
     return labyrinthWaende
+
+def gridConstruct():
+    with open("maze.txt", 'rt') as gridFile:
+
+        placeholder1 = int(gridFile.readline()) #Wird benötigt um Dimension beim Einlesen zu überspringen
+        grid = gridFile.read().splitlines() #Einlesen des gesamten Spielfeldes
+        gridFinish = []     #Definieren eines neuen Arrays, welches als Output der for-Schleife genutzt wird
+        for i in grid:      #Leerzeichen aus Spielfeld entfernen
+            j = i.replace(' ', '')
+            gridFinish.append(j)
+
+    return gridFinish
 
 def buildMaze(captionString):
     pygame.init()
