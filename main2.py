@@ -21,8 +21,8 @@ def dimensionChecker(dim):
     if dim != 30:   #Abfrage, ob der übergebene Wert (Dimension des Labyrints) dem Wert 30 entspricht
         #print("Bitte Dimension 30 in Textdokument eingeben!")
         Tk().wm_withdraw()  #Fenster verstecken, welches sich beim Aufruf der Funktion öffnet
-        messagebox.showerror('Dimension Error!', 'Bitte Dimension 30 in Textdokument eingeben!') #Pop-Up Errorfenster
-        exit()  #Programm beenden
+        messagebox.showerror('Dimension Error!', 'Bitte Dimension 30 in Textdokument eingeben!\n(Erste Zeile)') #Pop-Up Errorfenster
+        pygame.quit()  #Programm beenden
 
 #Importieren der Datei, die das Spielfeld aufbaut und einlesen der Wände
 def waendeLesen():
@@ -54,9 +54,26 @@ def baueDasSpielfeldAuf(captionString):
     pygame.init()
     screen = pygame.display.set_mode((800, 800))
     pygame.display.set_caption(captionString)
-    # hier werden die Wände aufgebaut
+    #hier werden die Wände aufgebaut
     waende = buildwalls(screen)
     return [screen, waende]
+
+def programRunning(x_start, y_start, x_end, y_end, speed):
+    activeProgram = True  #Variable, welche aussagt, ob das Programm läuft
+    clock = pygame.time.Clock()  #Definieren einer neuen Zeitrechnungsvariable
+
+    while activeProgram:  #Schleife, welche das Programm ausführt, solange activeProgram auf True steht
+        active = activeChecker()  #Prüft mit dem activeChecker, ob Programm noch aktiv ist und übergibt den Wert
+        pygame.display.update()  #Aktualisieren der optischen Ausgabe
+
+        if active:
+            clock.tick(10)  #Stellt die Zeit auf den Wert 10, falls Programm aktiv ist
+        else:
+            pygame.time.wait(1000)  #Wartezeit von einer spezifischen Anazhl an Millisekunden
+
+        depthSearch(x_start, y_start, x_end, y_end, speed)  #Ausführen der Tiefensuchefunktion
+
+        pygame.display.update()  #Aktualisieren der optischen Ausgabe
 
 def activeChecker():   #Prüft, ob das Spiel am Laufen ist, oder beendet wird
     active = True
@@ -97,68 +114,51 @@ def shortestPath(): # Anzeigen der Schrift nach erfolgreichem Finden des Ausgang
     FINISH_FONT = pygame.freetype.SysFont(pygame.font.get_default_font(), 20) #Neue Schrift initialisieren
     FINISH_FONT.render_to(screenMain, (20, 770), "Ziel erreicht!", (0, 255, 0)) #Schrift auf Spielfeld rendern
 
-def _depthSearch(visited, x, y): #Rekursives Aufrufen der Funktion
+def _depthSearch(visited, x, y, finish_X, finish_Y, grid, speed): #Rekursives Aufrufen der Funktion
     outputVisited(x, y)  # Funktionsaufruf um besuchten Ort anzuzeigen
     visited[y][x] = True    #Setzt das Feld auf bereits besucht
-    if x == xEnd and y == yEnd: #Bedingung, falls der Algorithmus den Endpunkt findet
+    if x == finish_X and y == finish_Y: #Bedingung, falls der Algorithmus den Endpunkt findet
         shortestPath()  #Ausführen der Funktion, welche die abschließende Ausgabe zur Folge hat
         pygame.display.update() #Aktualisieren der optischen Ausgabe
         pygame.time.wait(3000)  # Zeit die verstreicht, wenn der Weg gefunden wurde, bis sich das Fenster wieder schließt
-        exit()  #Beendet das Programm an dieser Stelle (Ziel wurde erreicht)
+        pygame.quit()  #Beendet das Programm an dieser Stelle (Ziel wurde erreicht)
 
     paint_Robot(screenMain, x, y) #Funktionsaufruf um Roboter zu zeichnen
     pygame.display.update() #Aktualisieren der optischen Ausgabe
     robot_Path(screenMain, x, y) #Funktionsaufruf um Roboter Laufweg zu zeichnen
-    pygame.time.wait(setSpeed) #Übergabe der in Main definierten Geschwindigkeit für Algorithmus
-    if y - 1 >= 1 and loadGrid[y - 1][x] != "1" and not visited[y - 1][x]:      #Nach oben
-        _depthSearch(visited, x, y - 1)
-    if x + 1 < 25 and loadGrid[y][x + 1] != "1" and not visited[y][x + 1]:      #Nach rechts
-        _depthSearch(visited, x + 1, y)
-    if x - 1 >= 1 and loadGrid[y][x - 1] != "1" and not visited[y][x - 1]:      #Nach links
-        _depthSearch(visited, x - 1, y)
-    if y + 1 < 25 and loadGrid[y + 1][x] != "1" and not visited[y + 1][x]:      #Nach unten
-        _depthSearch(visited, x, y + 1)
+    pygame.time.wait(speed) #Übergabe der in Main definierten Geschwindigkeit für Algorithmus
+    if y - 1 >= 1 and grid[y - 1][x] != "1" and not visited[y - 1][x]:      #Nach oben
+        _depthSearch(visited, x, y - 1, finish_X, finish_Y, grid,speed)
+    if x + 1 < 25 and grid[y][x + 1] != "1" and not visited[y][x + 1]:      #Nach rechts
+        _depthSearch(visited, x + 1, y, finish_X, finish_Y, grid, speed)
+    if x - 1 >= 1 and grid[y][x - 1] != "1" and not visited[y][x - 1]:      #Nach links
+        _depthSearch(visited, x - 1, y, finish_X, finish_Y, grid, speed)
+    if y + 1 < 25 and grid[y + 1][x] != "1" and not visited[y + 1][x]:      #Nach unten
+        _depthSearch(visited, x, y + 1, finish_X, finish_Y, grid, speed)
 
-def depthSearch():
+def depthSearch(start_X, start_Y, finish_X, finish_Y, speed):
+    loadGrid = []  # Definieren eines neuen Arrays, in welches das Labyrint für den Algorithmus übertragen wird
+    loadGrid = gridConstruct()  # Übertragen des Labyrinths in zuvor definiertes Array
     visited = []    #Erzeugt eine Liste für spätere Verwendung
     for i in range(len(loadGrid)):  #Schleife geht das Array der Länge nach durch
         l = []  #Erstellen einer leeren Liste
         for j in range(len(loadGrid[0])): #In Liste "l" wird für jedes Feld des Labyrints nun der Wert False gesetzt
             l.append(False)
         visited.append(l) #Übergabe der Werte an die zuvor erstellte Liste visited
-    _depthSearch(visited, xstart, ystart) #Aufruf des rekursiven Funktionteils der Tiefensuche mit übergabe der Liste visited
+    _depthSearch(visited, start_X, start_Y, finish_X, finish_Y, loadGrid, speed) #Aufruf des rekursiven Funktionteils der Tiefensuche mit übergabe der Liste visited
 
 if __name__ == '__main__':  # Main-Methode: hier werden die Methoden aufgerufen und allgemeine Variablen definiert
 
-    setSpeed = 100 #Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
+    #!!! Globale Variablen werden nur für leichtere Konfiguration verwendet, es erfolgt kein Zugriff auf/aus  Funktionen !!!
 
-    #Start und Endpunkte für das Labyrinth
-    xstart = 1
-    ystart = 0
-    xEnd = 22
-    yEnd = 24
+    set_Speed = 100     #Geschwindigkeit anpassen: 500 = Langsam, 50 = schnell
+    startpoint_X = 1    #Start und Endpunkte für das Labyrinth
+    startpoint_Y = 0
+    endpoint_X = 22
+    endpoint_Y = 24
 
-    loadGrid = []       #Definieren eines neuen Arrays, in welches das Labyrint für den Algorithmus übertragen wird
-    loadGrid = gridConstruct()  #Übertragen des Labyrinths in zuvor definiertes Array
-
-    #Hier wird der Aufbau des Spielfeldes in die Wege geleitet
     screenMain, waende = baueDasSpielfeldAuf("Minotaurus")  #Spielfeld aufbauen
-    set_startpoint(screenMain, xstart, ystart)  #Startpunkt zeichnen (Funktion aufrufen)
-    set_endpoint(screenMain, xEnd, yEnd)        #Endpunkt zeichnen (Funktion aufrufen)
-
-    activeProgram = True    #Variable, welche aussagt, ob das Programm läuft
-    clock = pygame.time.Clock() #Definieren einer neuen Zeitrechnungsvariable
-
-    while activeProgram:    #Schleife, welche das Programm ausführt, solange activeProgram auf True steht
-        active = activeChecker()    #Prüft mit dem activeChecker, ob Programm noch aktiv ist und übergibt den Wert
-        pygame.display.update()  #Aktualisieren der optischen Ausgabe
-
-        if active:
-            clock.tick(10)  #Stellt die Zeit auf den Wert 10, falls Programm aktiv ist
-        else:
-            pygame.time.wait(1000)  #Wartezeit von einer spezifischen Anazhl an Millisekunden
-
-        depthSearch()   #Ausführen der Tiefensuchefunktion
-        pygame.display.update() #Aktualisieren der optischen Ausgabe
-
+    set_startpoint(screenMain, startpoint_X, startpoint_Y)  #Startpunkt zeichnen (Funktion aufrufen)
+    set_endpoint(screenMain, endpoint_X, endpoint_Y)        #Endpunkt zeichnen (Funktion aufrufen)
+    programRunning(startpoint_X, startpoint_Y, endpoint_X, endpoint_Y, set_Speed) #Eigentliches Programm starten
     pygame.quit() #Programm beenden
